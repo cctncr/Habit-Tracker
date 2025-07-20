@@ -1,0 +1,78 @@
+# Android Studio
+.idea/
+.gradle/
+local.properties
+
+# Gradle
+**/build/
+!gradle-wrapper.jar
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+
+# OS Files (Mac, Linux)
+*.DS_Store
+*.swp
+*~
+
+# Logs
+*.log
+
+# Android Generated files
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Build outputs
+app/**/*.apk
+app/**/*.ap_ 
+app/**/*.aab
+app/**/*.aar
+
+# Navigation Editor
+.navigation/
+
+# Kotlin
+*.kotlin_module
+
+# Kapt (annotation processing)
+**/build/generated/source/kapt/
+**/build/intermediates/kapt/
+
+# Hilt / Dagger
+**/build/generated/
+**/build/intermediates/
+**/build/tmp/
+
+# Room
+# Eğer projede schemas klasörü proje içinde tutuluyorsa
+**/schemas/
+
+# Safe Args (Navigation)
+**/generated/source/navigation-args/
+
+# Coroutines / Flows
+# (build çıktıları zaten ignore ediliyor)
+
+# ProGuard / R8
+.proguard/
+proguard-rules.pro
+
+# Crashlytics / Firebase
+fabric.properties
+.crashlytics/
+google-services.json
+.firebase/
+
+# Environment / Secrets
+.env*
+*.jks
+debug.keystore
+
+# IDE Profiling and Memory Dumps
+*.hprof
+
+# Misc
+*DOWNLOADS.md
