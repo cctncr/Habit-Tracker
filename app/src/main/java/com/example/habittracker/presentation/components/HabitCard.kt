@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.habittracker.presentation.home.HabitType
 import com.example.habittracker.presentation.home.HabitUiModel
 import kotlin.math.max
 
@@ -41,12 +42,12 @@ fun HabitCard(
     modifier: Modifier = Modifier
 ) {
     val remainingHours = max(0, habit.renewalHours - habit.lastCompletedHours)
-    val progress = habit.lastCompletedHours.toFloat() / habit.renewalHours.toFloat()
+    val timeProgress = habit.lastCompletedHours.toFloat() / habit.renewalHours.toFloat()
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(if (habit.type is HabitType.Numeric) 150.dp else 120.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (habit.isCompleted)
@@ -93,7 +94,7 @@ fun HabitCard(
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = "${habit.streakCount} gün",
+                        text = "${habit.streakCount} days",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -101,31 +102,47 @@ fun HabitCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                if (!habit.isCompleted) {
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
-                        color = when {
-                            remainingHours <= 2 -> Color(0xFFE74C3C)
-                            remainingHours <= 6 -> Color(0xFFF39C12)
-                            else -> MaterialTheme.colorScheme.primary
-                        },
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "$remainingHours saat kaldı",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = when {
-                            remainingHours <= 2 -> Color(0xFFE74C3C)
-                            remainingHours <= 6 -> Color(0xFFF39C12)
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                when (habit.type) {
+                    is HabitType.Boolean -> {
+                        if (!habit.isCompleted) {
+                            LinearProgressIndicator(
+                                progress = { timeProgress },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.7f)
+                                    .height(6.dp)
+                                    .clip(RoundedCornerShape(3.dp)),
+                                color = when {
+                                    remainingHours <= 2 -> Color(0xFFE74C3C)
+                                    remainingHours <= 6 -> Color(0xFFF39C12)
+                                    else -> MaterialTheme.colorScheme.primary
+                                },
+                            )
                         }
-                    )
+                    }
+
+                    is HabitType.Numeric -> {
+                        NumericProgressIndicator(
+                            currentValue = habit.currentValue ?: 0.0,
+                            targetValue = habit.type.target,
+                            unit = habit.type.unit,
+                            prefix = habit.type.prefix,
+                            suffix = habit.type.suffix,
+                            isCompleted = habit.isCompleted
+                        )
+
+                        if (!habit.isCompleted) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "$remainingHours hours left",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = when {
+                                    remainingHours <= 2 -> Color(0xFFE74C3C)
+                                    remainingHours <= 6 -> Color(0xFFF39C12)
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
@@ -157,4 +174,48 @@ fun HabitCard(
             }
         }
     }
+}
+
+@Composable
+private fun NumericProgressIndicator(
+    currentValue: Double,
+    targetValue: Double,
+    unit: String,
+    prefix: String,
+    suffix: String,
+    isCompleted: Boolean
+) {
+    val progress = (currentValue / targetValue).coerceIn(0.0, 1.0)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "$prefix $currentValue $unit $suffix" +
+                    if (isCompleted) "" else " ${targetValue - currentValue} $unit remaining.",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = if (isCompleted)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.onSurface
+        )
+    }
+
+    Spacer(modifier = Modifier.height(4.dp))
+
+    LinearProgressIndicator(
+        progress = { progress.toFloat() },
+        modifier = Modifier
+            .fillMaxWidth(0.7f)
+            .height(6.dp)
+            .clip(RoundedCornerShape(3.dp)),
+        color = when {
+            isCompleted -> MaterialTheme.colorScheme.primary
+            progress >= 0.8f -> Color(0xFF4CAF50)
+            progress >= 0.5f -> Color(0xFFFFA500)
+            else -> Color(0xFFE74C3C)
+        }
+    )
 }

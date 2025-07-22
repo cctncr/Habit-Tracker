@@ -36,33 +36,37 @@ import com.example.habittracker.presentation.navigation.Screen
 fun HomeScreen(navController: NavController) {
     // For testing
     val mockHabits = remember {
-//        listOf(
-//            HabitUiModel(
-//                id = 1,
-//                name = "Run",
-//                streakCount = 15,
-//                renewalHours = 24,
-//                lastCompletedHours = 18,
-//                isCompleted = false
-//            ),
-//            HabitUiModel(
-//                id = 2,
-//                name = "Book",
-//                streakCount = 7,
-//                renewalHours = 24,
-//                lastCompletedHours = 5,
-//                isCompleted = true
-//            ),
-//            HabitUiModel(
-//                id = 3,
-//                name = "Water",
-//                streakCount = 30,
-//                renewalHours = 6,
-//                lastCompletedHours = 2,
-//                isCompleted = false
-//            )
-//        )
-        emptyList<HabitUiModel>()
+        listOf(
+            HabitUiModel(
+                id = 1,
+                name = "Run",
+                streakCount = 15,
+                renewalHours = 24,
+                lastCompletedHours = 18,
+                isCompleted = false,
+                type = HabitType.Numeric("km", 2.0, "Today", "done."),
+            ),
+            HabitUiModel(
+                id = 2,
+                name = "Book",
+                streakCount = 7,
+                renewalHours = 24,
+                lastCompletedHours = 5,
+                isCompleted = true,
+                type = HabitType.Numeric("page", 100.0, "Today", "done."),
+                currentValue = 100.0
+            ),
+            HabitUiModel(
+                id = 3,
+                name = "Water",
+                streakCount = 30,
+                renewalHours = 6,
+                lastCompletedHours = 2,
+                isCompleted = false,
+                type = HabitType.Boolean
+            )
+        )
+//        emptyList<HabitUiModel>()
     }
 
     Scaffold(
@@ -144,11 +148,23 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
+sealed class HabitType {
+    data object Boolean : HabitType()
+    data class Numeric(
+        val unit: String,
+        val target: Double,
+        val prefix: String = "",
+        val suffix: String = ""
+    ) : HabitType()
+}
+
 data class HabitUiModel(
     val id: Long,
     val name: String,
+    val type: HabitType,
     val streakCount: Int,
     val renewalHours: Int,
     val lastCompletedHours: Int,
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+    val currentValue: Double? = null
 )
