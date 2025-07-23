@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,22 +42,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabitScreen(navController: NavController) {
-    var habitName by remember { mutableStateOf("") }
-    var habitType by remember { mutableStateOf(HabitTypeSelection.BOOLEAN) }
-    var renewalPeriod by remember { mutableStateOf("24") }
-    var renewalUnit by remember { mutableStateOf(RenewalUnit.HOURS) }
-
-    // For numeric habit
-    var targetValue by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf("") }
-    var prefix by remember { mutableStateOf("") }
-    var suffix by remember { mutableStateOf("") }
+fun AddHabitScreen(
+    navController: NavController,
+    viewModel: AddHabitViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -77,8 +74,8 @@ fun AddHabitScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
-                value = habitName,
-                onValueChange = { habitName = it },
+                value = uiState.habitName,
+                onValueChange = viewModel::updateHabitName,
                 label = { Text("Habit Name") },
                 placeholder = { Text("e.g., Morning Meditation") },
                 modifier = Modifier.fillMaxWidth()
@@ -103,13 +100,13 @@ fun AddHabitScreen(navController: NavController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { habitType = HabitTypeSelection.BOOLEAN }
+                            .clickable { viewModel.updateHabitType(HabitTypeSelection.BOOLEAN) }
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = habitType == HabitTypeSelection.BOOLEAN,
-                            onClick = { habitType = HabitTypeSelection.BOOLEAN }
+                            selected = uiState.habitType == HabitTypeSelection.BOOLEAN,
+                            onClick = { viewModel.updateHabitType(HabitTypeSelection.BOOLEAN) }
                         )
                         Column(modifier = Modifier.padding(start = 8.dp)) {
                             Text("Yes/No Habit")
@@ -124,13 +121,13 @@ fun AddHabitScreen(navController: NavController) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { habitType = HabitTypeSelection.NUMERIC }
+                            .clickable { viewModel.updateHabitType(HabitTypeSelection.NUMERIC) }
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = habitType == HabitTypeSelection.NUMERIC,
-                            onClick = { habitType = HabitTypeSelection.NUMERIC }
+                            selected = uiState.habitType == HabitTypeSelection.NUMERIC,
+                            onClick = { viewModel.updateHabitType(HabitTypeSelection.NUMERIC) }
                         )
                         Column(modifier = Modifier.padding(start = 8.dp)) {
                             Text("Measurable Habit")
@@ -144,7 +141,7 @@ fun AddHabitScreen(navController: NavController) {
                 }
             }
 
-            if (habitType == HabitTypeSelection.NUMERIC) {
+            if (uiState.habitType == HabitTypeSelection.NUMERIC) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -165,8 +162,8 @@ fun AddHabitScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedTextField(
-                                value = targetValue,
-                                onValueChange = { targetValue = it },
+                                value = uiState.targetValue,
+                                onValueChange = viewModel::updateTargetValue,
                                 label = { Text("Target") },
                                 placeholder = { Text("e.g., 5") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -174,8 +171,8 @@ fun AddHabitScreen(navController: NavController) {
                             )
 
                             OutlinedTextField(
-                                value = unit,
-                                onValueChange = { unit = it },
+                                value = uiState.unit,
+                                onValueChange = viewModel::updateUnit,
                                 label = { Text("Unit") },
                                 placeholder = { Text("e.g., km") },
                                 modifier = Modifier.weight(1f)
@@ -187,16 +184,16 @@ fun AddHabitScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedTextField(
-                                value = prefix,
-                                onValueChange = { prefix = it },
+                                value = uiState.prefix,
+                                onValueChange = viewModel::updatePrefix,
                                 label = { Text("Prefix (optional)") },
                                 placeholder = { Text("e.g., $") },
                                 modifier = Modifier.weight(1f)
                             )
 
                             OutlinedTextField(
-                                value = suffix,
-                                onValueChange = { suffix = it },
+                                value = uiState.suffix,
+                                onValueChange = viewModel::updateSuffix,
                                 label = { Text("Suffix (optional)") },
                                 placeholder = { Text("e.g., pages") },
                                 modifier = Modifier.weight(1f)
@@ -228,8 +225,8 @@ fun AddHabitScreen(navController: NavController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
-                            value = renewalPeriod,
-                            onValueChange = { renewalPeriod = it },
+                            value = uiState.renewalPeriod,
+                            onValueChange = viewModel::updateRenewalPeriod,
                             label = { Text("Every") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f)
@@ -238,7 +235,7 @@ fun AddHabitScreen(navController: NavController) {
                         var expanded by remember { mutableStateOf(false) }
                         Box(modifier = Modifier.weight(1f)) {
                             OutlinedTextField(
-                                value = renewalUnit.displayName,
+                                value = uiState.renewalUnit.displayName,
                                 onValueChange = { },
                                 readOnly = true,
                                 trailingIcon = {
@@ -260,7 +257,7 @@ fun AddHabitScreen(navController: NavController) {
                                     DropdownMenuItem(
                                         text = { Text(unit.displayName) },
                                         onClick = {
-                                            renewalUnit = unit
+                                            viewModel.updateRenewalUnit(unit)
                                             expanded = false
                                         }
                                     )
@@ -275,26 +272,22 @@ fun AddHabitScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // TODO: Save habit
-                    navController.navigateUp()
+                    viewModel.saveHabit {
+                        navController.navigateUp()
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = habitName.isNotBlank() &&
-                        renewalPeriod.isNotBlank() &&
-                        (habitType == HabitTypeSelection.BOOLEAN ||
-                                (targetValue.isNotBlank() && unit.isNotBlank()))
+                enabled = uiState.isSaveEnabled && !uiState.isLoading
             ) {
-                Text("Create Habit")
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Create Habit")
+                }
             }
         }
     }
-}
-
-enum class HabitTypeSelection {
-    BOOLEAN, NUMERIC
-}
-
-enum class RenewalUnit(val displayName: String) {
-    HOURS("Hours"),
-    DAYS("Days")
 }

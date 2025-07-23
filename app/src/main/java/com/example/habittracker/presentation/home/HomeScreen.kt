@@ -41,7 +41,7 @@ fun HomeScreen(navController: NavController) {
                 id = 1,
                 name = "Run",
                 streakCount = 15,
-                renewalHours = 24,
+                renewalHours = 24,  // Daily
                 lastCompletedHours = 18,
                 isCompleted = false,
                 type = HabitType.Numeric("km", 2.0, "Today", "done."),
@@ -50,8 +50,8 @@ fun HomeScreen(navController: NavController) {
                 id = 2,
                 name = "Book",
                 streakCount = 7,
-                renewalHours = 24,
-                lastCompletedHours = 5,
+                renewalHours = 5,  // Daily
+                lastCompletedHours = 3,
                 isCompleted = true,
                 type = HabitType.Numeric("page", 100.0, "Today", "done."),
                 currentValue = 100.0
@@ -60,8 +60,17 @@ fun HomeScreen(navController: NavController) {
                 id = 3,
                 name = "Water",
                 streakCount = 30,
-                renewalHours = 6,
-                lastCompletedHours = 2,
+                renewalHours = 7,   // Every 6 hours
+                lastCompletedHours = 5,
+                isCompleted = false,
+                type = HabitType.Boolean
+            ),
+            HabitUiModel(
+                id = 4,
+                name = "Medication",
+                streakCount = 45,
+                renewalHours = 12,  // Twice a day
+                lastCompletedHours = 8,
                 isCompleted = false,
                 type = HabitType.Boolean
             )
@@ -139,7 +148,7 @@ fun HomeScreen(navController: NavController) {
                             // TODO: Handle completion
                         },
                         onClick = {
-                            // TODO: Navigate to detail
+                            navController.navigate(Screen.HabitDetail.createRoute(habit.id))
                         }
                     )
                 }
